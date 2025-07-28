@@ -51,7 +51,7 @@ public class MissileEnemy extends Enemy {
         }
     }
 
-    public void setTargetPlayer(Player player) {
+    public void setTarget(Player player) {
         this.player = player;
     }
 

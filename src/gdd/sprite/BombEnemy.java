@@ -53,7 +53,7 @@ public class BombEnemy extends Enemy {
         }
     }
     
-    public void setPlayer(Player player) {
+    public void setTarget(Player player) {
         this.player = player;
     }
     
