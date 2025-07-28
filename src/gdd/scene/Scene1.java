@@ -426,6 +426,7 @@ public class Scene1 extends JPanel {
             inGame = false;
             timer.stop();
             message = "Game won!";
+            game.loadScene2();
         }
 
         player.act();
