@@ -1,7 +1,6 @@
 package gdd.sprite;
 
 import static gdd.Global.*;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import gdd.ClippingAnimation;
