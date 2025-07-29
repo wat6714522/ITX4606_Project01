@@ -4,6 +4,8 @@ import gdd.AudioPlayer;
 import gdd.Game;
 import static gdd.Global.*;
 import gdd.SpawnDetails;
+import gdd.powerup.MultiShot;
+import gdd.powerup.PlayerArmor;
 import gdd.powerup.PowerUp;
 import gdd.powerup.SpeedUp;
 import gdd.sprite.Bomb;
@@ -93,14 +95,16 @@ public class Scene2 extends JPanel {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
     };
 
-    private HashMap<Integer, SpawnDetails> spawnMap = new HashMap<>();
+    private int enemySpawnInterval = 100;
+    private int lastEnemySpawnFrame = 0;
+    private Random random = new Random(); 
+
     private AudioPlayer audioPlayer;
     private int lastRowToShow;
     private int firstRowToShow;
 
     public Scene2(Game game) {
         this.game = game;
-        loadSpawnDetails();
     }
 
     private void initAudio() {
@@ -111,36 +115,6 @@ public class Scene2 extends JPanel {
         } catch (Exception e) {
             System.err.println("Error initializing audio player: " + e.getMessage());
         }
-    }
-
-    private void loadSpawnDetails() {
-        // Scene2 spawn details with the three specified enemy types
-        spawnMap.put(50, new SpawnDetails("PowerUp-SpeedUp", 100, 0));
-        
-        // ShootingEnemy spawns
-        spawnMap.put(200, new SpawnDetails("ShootingEnemy", 200, 0));
-        spawnMap.put(250, new SpawnDetails("ShootingEnemy", 300, 0));
-        spawnMap.put(300, new SpawnDetails("ShootingEnemy", 400, 0));
-
-        // MissileEnemy spawns
-        spawnMap.put(400, new SpawnDetails("MissileEnemy", 150, 0));
-        spawnMap.put(450, new SpawnDetails("MissileEnemy", 350, 0));
-        spawnMap.put(500, new SpawnDetails("MissileEnemy", 250, 0));
-
-        // BombEnemy spawns
-        spawnMap.put(600, new SpawnDetails("BombEnemy", 100, 0));
-        spawnMap.put(650, new SpawnDetails("BombEnemy", 300, 0));
-        spawnMap.put(700, new SpawnDetails("BombEnemy", 500, 0));
-
-        // Mixed formations
-        spawnMap.put(800, new SpawnDetails("ShootingEnemy", 100, 0));
-        spawnMap.put(801, new SpawnDetails("MissileEnemy", 200, 0));
-        spawnMap.put(802, new SpawnDetails("BombEnemy", 300, 0));
-        spawnMap.put(803, new SpawnDetails("ShootingEnemy", 400, 0));
-    }
-
-    private void initBoard() {
-
     }
 
     public void start() {
@@ -176,6 +150,49 @@ public class Scene2 extends JPanel {
         missiles = new ArrayList<>();
 
         player = new Player();
+    }
+
+    private void randomSpawnEnemies(){
+        if (lastEnemySpawnFrame >= enemySpawnInterval) {
+            int enemyType = random.nextInt(6); // 0 = Shooting, 1 = Missile, 2 = Bomb
+
+            switch (enemyType) {
+                case 0:
+                    ShootingEnemy enemy = new ShootingEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    enemy.setTarget(player);
+                    enemy.setEnemyShots(enemyShots);
+                    enemies.add(enemy);
+                    break;
+                case 1:
+                    MissileEnemy missileEnemy = new MissileEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    missileEnemy.setTarget(player);
+                    missileEnemy.setMissilesList(missiles);
+                    enemies.add(missileEnemy);
+                    break;
+                case 2:
+                    BombEnemy  bombEnemy = new BombEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    bombEnemy.setTarget(player);
+                    bombEnemy.setBombsList(bombs);
+                    enemies.add(bombEnemy); 
+                    break;
+                case 3: 
+                    PowerUp speedUp = new SpeedUp(BOARD_WIDTH-61, 0);
+                    powerups.add(speedUp);
+                    break;
+                case 4: 
+                    PowerUp playerArmor = new PlayerArmor(BOARD_WIDTH-61, 0); 
+                    powerups.add(playerArmor);
+                    break;
+                case 5:
+                    PowerUp multiShot = new MultiShot(BOARD_WIDTH-61, 0);
+                    powerups.add(multiShot); 
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + enemyType);
+            }
+            lastEnemySpawnFrame = 0;
+        }
+        lastEnemySpawnFrame++;
     }
 
     private void drawMap(Graphics g) {
@@ -336,36 +353,7 @@ public class Scene2 extends JPanel {
     }
 
     private void update() {
-        SpawnDetails sd = spawnMap.get(frame);
-        if (sd != null) {
-            switch (sd.type) {
-                case "ShootingEnemy":
-                    ShootingEnemy shootingEnemy = new ShootingEnemy(sd.x, sd.y);
-                    shootingEnemy.setTarget(player);
-                    shootingEnemy.setEnemyShots(enemyShots);
-                    enemies.add(shootingEnemy);
-                    break;
-                case "MissileEnemy":
-                    MissileEnemy missileEnemy = new MissileEnemy(sd.x, sd.y);
-                    missileEnemy.setTarget(player);
-                    missileEnemy.setMissilesList(missiles);
-                    enemies.add(missileEnemy);
-                    break;
-                case "BombEnemy":
-                    BombEnemy bombEnemy = new BombEnemy(sd.x, sd.y);
-                    bombEnemy.setBombsList(bombs);
-                    bombEnemy.setTarget(player);
-                    enemies.add(bombEnemy);
-                    break;
-                case "PowerUp-SpeedUp":
-                    PowerUp speedUp = new SpeedUp(sd.x, sd.y);
-                    powerups.add(speedUp);
-                    break;
-                default:
-                    System.out.println("Unknown enemy type: " + sd.type);
-                    break;
-            }
-        }
+        randomSpawnEnemies();
 
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
@@ -512,6 +500,7 @@ public class Scene2 extends JPanel {
 
             if(allExplosionsFinished && playerDeathAnimationFinished){
                 inGame = false;
+                message = "Game Over!";
             }
         }
     }

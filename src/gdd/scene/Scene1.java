@@ -124,7 +124,7 @@ public class Scene1 extends JPanel {
 
     private void randomSpawnEnemies(){
         if (lastEnemySpawnFrame >= enemySpawnInterval) {
-            int enemyType = random.nextInt(3); // 0 = Shooting, 1 = Missile, 2 = Bomb
+            int enemyType = random.nextInt(6); // 0 = Shooting, 1 = Missile, 2 = Bomb
 
             switch (enemyType) {
                 case 0:
@@ -144,6 +144,19 @@ public class Scene1 extends JPanel {
                     bombEnemy.setTarget(player);
                     bombEnemy.setBombsList(bombs);
                     enemies.add(bombEnemy); 
+                    break;
+
+                case 3: 
+                    PowerUp speedUp = new SpeedUp(BOARD_WIDTH-61, 0);
+                    powerups.add(speedUp);
+                    break;
+                case 4: 
+                    PowerUp playerArmor = new PlayerArmor(BOARD_WIDTH-61, 0); 
+                    powerups.add(playerArmor);
+                    break;
+                case 5:
+                    PowerUp multiShot = new MultiShot(BOARD_WIDTH-61, 0);
+                    powerups.add(multiShot); 
                     break;
                 default:
                     throw new IllegalArgumentException("Unexpected value: " + enemyType);
@@ -544,7 +557,6 @@ public class Scene1 extends JPanel {
                 message = "Game Over!";
             }
         }
-        
 
     }
 
