@@ -28,6 +28,7 @@ public class ExplosionEnemy extends Enemy {
 
     @Override
     public void act() {
+        this.y += UFO_SPEED; 
     }
 
 }
