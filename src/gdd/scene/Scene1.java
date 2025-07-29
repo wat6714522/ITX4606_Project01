@@ -471,9 +471,9 @@ public class Scene1 extends JPanel {
 
                     if (enemy.isVisible() && shot.isVisible()
                             && shotX >= (enemyX)
-                            && shotX <= (enemyX + ALIEN_WIDTH)
+                            && shotX <= (enemyX + 128)
                             && shotY >= (enemyY)
-                            && shotY <= (enemyY + ALIEN_HEIGHT)) {
+                            && shotY <= (enemyY + 128)) {
 
                         enemy.setDying(true); 
                         deaths++; 

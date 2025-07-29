@@ -347,14 +347,14 @@ public class Scene2 extends JPanel {
                     break;
                 case "MissileEnemy":
                     MissileEnemy missileEnemy = new MissileEnemy(sd.x, sd.y);
-                    missileEnemy.setTargetPlayer(player);
+                    missileEnemy.setTarget(player);
                     missileEnemy.setMissilesList(missiles);
                     enemies.add(missileEnemy);
                     break;
                 case "BombEnemy":
                     BombEnemy bombEnemy = new BombEnemy(sd.x, sd.y);
                     bombEnemy.setBombsList(bombs);
-                    bombEnemy.setPlayer(player);
+                    bombEnemy.setTarget(player);
                     enemies.add(bombEnemy);
                     break;
                 case "PowerUp-SpeedUp":
@@ -413,9 +413,9 @@ public class Scene2 extends JPanel {
 
                     if (enemy.isVisible() && shot.isVisible()
                             && shotX >= (enemyX)
-                            && shotX <= (enemyX + ALIEN_WIDTH)
+                            && shotX <= (enemyX + 128)
                             && shotY >= (enemyY)
-                            && shotY <= (enemyY + ALIEN_HEIGHT)) {
+                            && shotY <= (enemyY + 128)) {
 
                         enemy.setDying(true);
                         enemy.die(); // Immediately mark enemy as dead
