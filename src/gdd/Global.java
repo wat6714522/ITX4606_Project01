@@ -89,6 +89,10 @@ public class Global {
     public static final String ANIM_BOMB03_IDLE = "src/animation/Bomb/03/Idle.png";
     public static final String ANIM_BOMB03_EXPLOSION = "src/animation/Bomb/03/Explosion.png";
 
+    //Boss 
+    public static final String IMG_BOSS01 = "src/images/Enemy/Boss_Full01.png";
+    public static final String IMG_BOSS02 = "src/images/Enemy?Boss_Full02.png";
+
     //Bonus Items
     public static final String IMG_SPEEDUP = "src/images/Bonus_Item/SpeedUp.png";
     public static final String IMG_ARMOR = "src/images/Bonus_Item/Armor_Bonus.png";
