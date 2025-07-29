@@ -64,7 +64,7 @@ public class Scene1 extends JPanel {
     private String message = "Game Over";
 
     private final Dimension d = new Dimension(BOARD_WIDTH, BOARD_HEIGHT);
-    private final Random randomizer = new Random();
+  
 
     private Timer timer;
     private final Game game;
@@ -104,11 +104,12 @@ public class Scene1 extends JPanel {
     private int lastRowToShow;
     private int firstRowToShow;
 
+    private int lastEnemySpawnFrame = 0; 
+    private int enemySpawnInterval = 100; 
+    private Random random = new Random(); 
+
     public Scene1(Game game) {
         this.game = game;
-        // initBoard();
-        // gameInit();
-        loadSpawnDetails();
     }
 
     private void initAudio() {
@@ -121,27 +122,35 @@ public class Scene1 extends JPanel {
         }
     }
 
-    private void loadSpawnDetails() {
-        // TODO load this from a file
-        spawnMap.put(50, new SpawnDetails("SpeedUp", 100, 0));
-        
-        spawnMap.put(200, new SpawnDetails("ShootingEnemy", 200, 0));
-        spawnMap.put(201, new SpawnDetails("ShootingEnemy", 250, 0));
-        spawnMap.put(202, new SpawnDetails("ShootingEnemy", 300, 0));
-        spawnMap.put(203, new SpawnDetails("ShootingEnemy", 350, 0));
+    private void randomSpawnEnemies(){
+        if (lastEnemySpawnFrame >= enemySpawnInterval) {
+            int enemyType = random.nextInt(3); // 0 = Shooting, 1 = Missile, 2 = Bomb
 
-        spawnMap.put(400, new SpawnDetails("BombEnemy", 400, 0));
-        spawnMap.put(401, new SpawnDetails("BombEnemy", 450, 0));
-        spawnMap.put(402, new SpawnDetails("BombEnemy", 500, 0));
-        spawnMap.put(403, new SpawnDetails("BombEnemy", 550, 0));
-
-        spawnMap.put(490, new SpawnDetails("MultiShot", 100, 0));
-
-        spawnMap.put(500, new SpawnDetails("MissileEnemy", 100, 0));
-        spawnMap.put(501, new SpawnDetails("MissileEnemy", 150, 0));
-        spawnMap.put(502, new SpawnDetails("MissleEnemy", 200, 0));
-        spawnMap.put(503, new SpawnDetails("MissleEnemy", 350, 0));
-
+            switch (enemyType) {
+                case 0:
+                    ShootingEnemy enemy = new ShootingEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    enemy.setTarget(player);
+                    enemy.setEnemyShots(enemyShots);
+                    enemies.add(enemy);
+                    break;
+                case 1:
+                    MissileEnemy missileEnemy = new MissileEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    missileEnemy.setTarget(player);
+                    missileEnemy.setMissilesList(missiles);
+                    enemies.add(missileEnemy);
+                    break;
+                case 2:
+                    BombEnemy  bombEnemy = new BombEnemy(random.nextInt(BOARD_WIDTH-61), 0);
+                    bombEnemy.setTarget(player);
+                    bombEnemy.setBombsList(bombs);
+                    enemies.add(bombEnemy); 
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + enemyType);
+            }
+            lastEnemySpawnFrame = 0;
+        }
+        lastEnemySpawnFrame++;
     }
 
     private void initBoard() {
@@ -385,42 +394,7 @@ public class Scene1 extends JPanel {
     }
 
     private void update() {
-        // Check enemy spawn
-        // TODO this approach can only spawn one enemy at a frame
-        SpawnDetails sd = spawnMap.get(frame);
-        if (sd != null) {
-            // Create a new enemy based on the spawn details
-            switch (sd.type) {
-                case "ShootingEnemy":
-                    ShootingEnemy shootingEnemy = new ShootingEnemy(sd.x, sd.y); 
-                    shootingEnemy.setTarget(player);
-                    shootingEnemy.setEnemyShots(enemyShots);
-                    enemies.add(shootingEnemy); 
-                    break;
-                case "BombEnemy":
-                    BombEnemy bombEnemy = new BombEnemy(sd.x, sd.y);
-                    bombEnemy.setTarget(player);
-                    bombEnemy.setBombsList(bombs);
-                    enemies.add(bombEnemy);
-                    break; 
-                case "MissileEnemy": 
-                    MissileEnemy missileEnemy = new MissileEnemy(sd.x, sd.y); 
-                    missileEnemy.setTarget(player);
-                    missileEnemy.setMissilesList(missiles);
-                    enemies.add(missileEnemy);
-                    break;
-                case "SpeedUp":
-                    SpeedUp speedPowerUp = new SpeedUp(sd.x,  sd.y);
-                    powerups.add(speedPowerUp);
-                    break;
-                case "MultiShot": 
-                    MultiShot multiShot = new MultiShot(sd.x, sd.y); 
-                    powerups.add(multiShot);
-                    break; 
-                default:
-                    break;
-            }
-        }
+        randomSpawnEnemies();
 
         if (deaths == NUMBER_OF_ALIENS_TO_DESTROY) {
             inGame = false;
@@ -502,8 +476,9 @@ public class Scene1 extends JPanel {
                 bomb.act();
             
                 if(bomb.collidesWith(player)){
-                    bomb.die();
+                    bomb.explode();
                     player.setDying(true);
+                    player.explode();
                 }
                 if(!bomb.isVisible() || bomb.getY() > BOARD_HEIGHT){
                     bombsToRemove.add(bomb); 
@@ -521,6 +496,7 @@ public class Scene1 extends JPanel {
                 
                 if (enemyShot.collidesWith(player)) {
                     player.setDying(true); // Instant kill - no health system
+                    player.explode();
                     enemyShot.die();
                     enemyShotsToRemove.add(enemyShot);
                 }
@@ -538,10 +514,9 @@ public class Scene1 extends JPanel {
                 missile.act();
                 
                 if (missile.collidesWith(player)) {
+                    missile.explode();
                     player.setDying(true); // Instant kill - no health system
-                  // Start player death animation
-                    missile.die();
-                    missilesToRemove.add(missile);
+                    player.explode();
                 }
                 
                 if (missile.getY() > BOARD_HEIGHT) {
@@ -550,6 +525,25 @@ public class Scene1 extends JPanel {
             }
         }
         missiles.removeAll(missilesToRemove);
+
+                // Check if player is dying and all animations are complete at the end of update
+        if(player.dying){
+            boolean allExplosionsFinished = true; 
+            for(Bomb bomb: bombs){
+                if(bomb.isExploding()){
+                    allExplosionsFinished = false; 
+                    break;
+                }
+            }
+
+            // Also wait for player death animation to finish
+            boolean playerDeathAnimationFinished = !player.isExploding() || !player.isVisible();
+
+            if(allExplosionsFinished && playerDeathAnimationFinished){
+                inGame = false;
+                message = "Game Over!";
+            }
+        }
         
 
     }
@@ -591,6 +585,7 @@ public class Scene1 extends JPanel {
                 if (shots.size() < 4) {
                     // Create a new shot and add it to the list
                     PlayerShot shot = new PlayerShot(x, y);
+                    shot.startShotAnimation();
                     shots.add(shot);
                 }
             }
