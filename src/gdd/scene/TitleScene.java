@@ -108,7 +108,8 @@ public class TitleScene extends JPanel {
 
         g.setColor(Color.gray);
         g.setFont(g.getFont().deriveFont(10f));
-        g.drawString("Game by Chayapol", 10, 650);
+        g.drawString("Pawat Asavapotiphan 6714522", 10, 650);
+        g.drawString("Sai Sy Hein 6420131", 10,660); 
 
         Toolkit.getDefaultToolkit().sync();
     }
