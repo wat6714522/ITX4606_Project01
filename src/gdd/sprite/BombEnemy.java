@@ -1,11 +1,6 @@
 package gdd.sprite;
 
 import static gdd.Global.*;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.List; 
 import java.util.Random;
 import javax.swing.ImageIcon;
@@ -55,60 +50,6 @@ public class BombEnemy extends Enemy {
     
     public void setTarget(Player player) {
         this.player = player;
-    }
-    
-    private void rotateTowardsPlayer() {
-        if (player == null || !player.isVisible()) {
-            return;
-        }
-        
-        // Calculate angle to player
-        int playerX = player.getX();
-        int playerY = player.getY();
-        int centerX = this.x + (getImage().getWidth(null) / 2);
-        int centerY = this.y + (getImage().getHeight(null) / 2);
-        
-        double angle = Math.atan2(playerY - centerY, playerX - centerX);
-        
-        // Rotate the image
-        var ii = new ImageIcon(IMG_PIRATE02);
-        var originalImage = ii.getImage().getScaledInstance(
-            ii.getIconWidth() * SCALE_FACTOR,
-            ii.getIconHeight() * SCALE_FACTOR,
-            java.awt.Image.SCALE_SMOOTH
-        );
-        
-        Image rotatedImage = rotateImage(originalImage, angle);
-        setImage(rotatedImage);
-    }
-    
-    private Image rotateImage(Image image, double angle) {
-        int width = image.getWidth(null);
-        int height = image.getHeight(null);
-        
-        // If image dimensions are not available, use default size
-        if (width <= 0 || height <= 0) {
-            width = 128;  // Default to our standard sprite size
-            height = 128;
-        }
-        
-        BufferedImage rotatedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = rotatedImage.createGraphics();
-        
-        // Set rendering hints for better quality
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        
-        // Rotate around the center of the image
-        AffineTransform transform = new AffineTransform();
-        transform.rotate(angle, width / 2.0, height / 2.0);
-        g2d.setTransform(transform);
-        
-        // Draw the image
-        g2d.drawImage(image, 0, 0, null);
-        g2d.dispose();
-        
-        return rotatedImage;
     }
     
     private boolean canDropBomb() {
